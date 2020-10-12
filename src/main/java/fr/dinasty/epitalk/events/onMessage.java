@@ -1,15 +1,10 @@
 package fr.dinasty.epitalk.events;
 
-import fr.dinasty.epitalk.commands.AddCommand;
-import fr.dinasty.epitalk.commands.CreateCommand;
-import fr.dinasty.epitalk.commands.ErrorCommand;
-import fr.dinasty.epitalk.commands.RemoveCommand;
+import fr.dinasty.epitalk.commands.*;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Member;
 
 public class onMessage implements EventListener {
 
@@ -25,20 +20,16 @@ public class onMessage implements EventListener {
         if(command == null || command.charAt(0) != '!')
             return;
 
-        switch (command)
-        {
-            case "!create":
-                new CreateCommand(event.getMember(), command, args, event);
-                break;
-            case "!delete":
-                new RemoveCommand(event.getMember(), command, args, event);
-                break;
-            case "!add":
-                new AddCommand(event.getMember(), command, args, event);
-                break;
-            default:
-                new ErrorCommand(event.getMember(), command, args, event);
-                break;
+        if ("!create".equalsIgnoreCase(command) || "!new".equalsIgnoreCase(command) ) {
+            new CreateCommand(event.getMember(), command, args, event);
+        } else if ("!remove".equalsIgnoreCase(command) || "!delete".equalsIgnoreCase(command)) {
+            new RemoveCommand(event.getMember(), command, args, event);
+        } else if ("!addMember".equalsIgnoreCase(command) || "!add".equalsIgnoreCase(command)) {
+            new AddCommand(event.getMember(), command, args, event);
+        } else if ("!kickMember".equalsIgnoreCase(command) || "!kick".equalsIgnoreCase(command)) {
+            new KickCommand(event.getMember(), command, args, event);
+        } else {
+            new ErrorCommand(event.getMember(), command, args, event);
         }
     }
 
@@ -48,7 +39,10 @@ public class onMessage implements EventListener {
         String from[];
         from = message.split(" ");
         String dest[] = new String[from.length-1];
-        System.arraycopy(from, 1, dest,0, from.length);
+        for(int i = 1; i < from.length; i++)
+        {
+            dest[i-1] = from[i];
+        }
         return dest;
     }
 

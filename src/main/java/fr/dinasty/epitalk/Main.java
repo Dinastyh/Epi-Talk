@@ -14,7 +14,7 @@ public class Main {
     private static String[] commandsHelper;
 
     public static <Jda> void main(String[] args) throws LoginException {
-        jda = new JDABuilder("RgxCsl1EgV1a1SbqA0zjUcGZ0I55OG0L").build();
+        jda = new JDABuilder("NzYzNTA0NjAxMTQ3Mzc1NjQ2.X34rEg.ue_aWfaU_d_UCJqWt0K_mmi5iXg").build();
         eventsManager = new EventsManager();
         profilsManager = new ProfilsManager();
         commandsHelper= new String[]{"!create <NomduChannel>", "add <NomDuMembre>", "delete <NomDuChannel>", "remove <NomDuMembre>"};

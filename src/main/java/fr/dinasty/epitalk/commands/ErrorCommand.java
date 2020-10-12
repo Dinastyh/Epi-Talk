@@ -5,13 +5,18 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ErrorCommand extends Command{
-    Member commandSander;
+    Member commandSender;
     String command;
     String[] args;
     MessageReceivedEvent event;
 
-    public ErrorCommand(Member commandSander, String command, String[] args, MessageReceivedEvent event) {
-        super(commandSander, command, args, event);
+    public ErrorCommand(Member commandSender, String command, String[] args, MessageReceivedEvent event)
+    {
+        this.commandSender = commandSender;
+        this.command = command;
+        this.args = args;
+        this.event = event;
+        execute();
     }
 
     @Override
