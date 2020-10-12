@@ -11,11 +11,13 @@ public class Main {
     private static JDA jda;
     private static EventsManager eventsManager;
     private static ProfilsManager profilsManager;
+    private static String[] commandsHelper;
 
     public static <Jda> void main(String[] args) throws LoginException {
         jda = new JDABuilder("RgxCsl1EgV1a1SbqA0zjUcGZ0I55OG0L").build();
         eventsManager = new EventsManager();
         profilsManager = new ProfilsManager();
+        commandsHelper= new String[]{"!create <NomduChannel>", "add <NomDuMembre>", "delete <NomDuChannel>", "remove <NomDuMembre>"};
     }
 
     public static JDA getJda() {
@@ -24,5 +26,9 @@ public class Main {
 
     public static ProfilsManager getProfilsManager() {
         return profilsManager;
+    }
+
+    public static String[] getCommandsHelper() {
+        return commandsHelper;
     }
 }
