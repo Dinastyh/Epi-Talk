@@ -26,6 +26,6 @@ public class ErrorCommand extends Command{
         for (String command: Main.getCommandsHelper()) {
             stringBuilder.append(" "+command);
         }
-        event.getChannel().sendMessage("Commande non trouve, commandes disponible:"+ stringBuilder.toString()).queue();
+        event.getChannel().sendMessage("Commande non trouvée, commandes disponible:"+ stringBuilder.toString()).queue();
     }
 }

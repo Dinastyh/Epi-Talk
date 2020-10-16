@@ -1,6 +1,8 @@
 package fr.dinasty.epitalk.commands;
 
+import fr.dinasty.epitalk.utils.ChannelUtils;
 import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -10,6 +12,7 @@ public class AddCommand extends Command{
     String command;
     String[] args;
     MessageReceivedEvent event;
+    Guild guild;
 
     public AddCommand(Member commandSender, String command, String[] args, MessageReceivedEvent event)
     {
@@ -17,6 +20,7 @@ public class AddCommand extends Command{
         this.command = command;
         this.args = args;
         this.event = event;
+        guild = event.getGuild();
         execute();
     }
 
@@ -26,13 +30,13 @@ public class AddCommand extends Command{
         if( args.length < 2)
             return;
 
-        if(!event.getGuild().getMembers().contains(event.getGuild().getMemberById(parserId(args[0]))))
+        if(!guild.getMembers().contains(guild.getMemberById(parserId(args[0]))))
         {
             event.getChannel().sendMessage("Membre non trouvé").queue();
             return;
         }
 
-        Category category = getCategory("private");
+        Category category = ChannelUtils.getCategory("private", guild);
         if(category == null)
         {
             event.getChannel().sendMessage("Private non trouvé").queue();
@@ -40,7 +44,7 @@ public class AddCommand extends Command{
         }
 
         GuildChannel channel = null;
-        for (GuildChannel chan: event.getGuild().getChannels())
+        for (GuildChannel chan: guild.getChannels())
         {
             if(chan.getName().equals(args[1]) && category.getChannels().contains(chan))
             {
@@ -50,16 +54,16 @@ public class AddCommand extends Command{
 
         if(channel == null)
         {
-            event.getChannel().sendMessage("Channel not found").queue();
+            event.getChannel().sendMessage("Channel non trouvé").queue();
             return;
         }
 
-        if(!commandSender.getRoles().contains(event.getGuild().getRolesByName(args[1]+"Owner", true).get(0)))
+        if(!commandSender.getRoles().contains(guild.getRolesByName(args[1]+"Owner", true).get(0)))
         {
             event.getChannel().sendMessage("Vous ne pouvez ajouter un membre dans un channel qui ne vous appartient pas").queue();
         }
 
-        event.getGuild().addRoleToMember(event.getGuild().getMemberById(parserId(args[0])), event.getGuild().getRolesByName(args[1] + "Member", true).get(0)).complete();
+        guild.addRoleToMember(guild.getMemberById(parserId(args[0])), guild.getRolesByName(args[1] + "Member", true).get(0)).complete();
     }
 
     private String parserId(String id)
@@ -67,16 +71,4 @@ public class AddCommand extends Command{
         return id.substring(3, id.length()-1);
     }
 
-    public Category getCategory(String name)
-    {
-        Category category = null;
-        for(Category category1 : event.getGuild().getCategories())
-        {
-            if(category1.getName().equalsIgnoreCase(name))
-            {
-                category = category1;
-            }
-        }
-        return category;
-    }
 }

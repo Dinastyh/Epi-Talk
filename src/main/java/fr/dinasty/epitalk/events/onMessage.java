@@ -14,6 +14,8 @@ public class onMessage implements EventListener {
             return;
 
         MessageReceivedEvent event = (MessageReceivedEvent)genericEvent;
+        if(!event.getChannel().getName().equalsIgnoreCase("commandes"))
+            return;
         String command = commandParserCommand(event.getMessage().getContentRaw());
         String args[] = commandParserArgs(event.getMessage().getContentRaw());
 

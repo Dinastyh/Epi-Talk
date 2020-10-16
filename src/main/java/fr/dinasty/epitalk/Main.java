@@ -14,7 +14,7 @@ public class Main {
     private static String[] commandsHelper;
 
     public static <Jda> void main(String[] args) throws LoginException {
-        jda = new JDABuilder("NzYzNTA0NjAxMTQ3Mzc1NjQ2.X34rEg.ue_aWfaU_d_UCJqWt0K_mmi5iXg").build();
+        jda = new JDABuilder("PAS DE TOKEN ON GITHUB").build();
         eventsManager = new EventsManager();
         profilsManager = new ProfilsManager();
         commandsHelper= new String[]{"!create <NomduChannel>", "add <NomDuMembre>", "delete <NomDuChannel>", "remove <NomDuMembre>"};

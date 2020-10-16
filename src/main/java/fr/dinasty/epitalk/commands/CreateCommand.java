@@ -1,10 +1,8 @@
 package fr.dinasty.epitalk.commands;
 
+import fr.dinasty.epitalk.utils.ChannelUtils;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -17,6 +15,7 @@ public class CreateCommand extends Command {
     String command;
     String[] args;
     MessageReceivedEvent event;
+    Guild guild;
 
     public CreateCommand(Member commandSender, String command, String[] args, MessageReceivedEvent event)
     {
@@ -24,6 +23,7 @@ public class CreateCommand extends Command {
         this.command = command;
         this.args = args;
         this.event = event;
+        guild = event.getGuild();
         execute();
     }
 
@@ -32,66 +32,51 @@ public class CreateCommand extends Command {
     {
         if(args.length < 1)
             return;
-        //Cancel if args[0] == member id
-        for(Member member : event.getGuild().getMembers())
+        String name = args[0];
+        for(Member member : guild.getMembers())
         {
-            if(args[0].equals("<@!"+member.getId()+">"))
+            if(name.equals("<@!"+member.getId()+">"))
             {
                 event.getChannel().sendMessage("Vous ne pouvez pas creer un channel avec le nom d'un joueur").queue();
                 return;
             }
         }
         //cancel if channel is alredy created
-        for (GuildChannel chal: event.getGuild().getChannels())
+        for (GuildChannel chal: guild.getChannels())
         {
-            if(chal.getName().equals(args[0]))
+            if(chal.getName().equals(name))
             {
                 event.getChannel().sendMessage("Un channel à ce nom existe déjà").queue();
                 return;
             }
         }
-        Category category = getCategory();
+        newRoles(name);
+        Role roleOwner = guild.getRolesByName(name+"Owner", true).get(0);
+        Role roleMember = guild.getRolesByName(name+"Member", true).get(0);
+
+        Category category = ChannelUtils.getCategory("private", guild);
         if(args.length> 1 && args[1].equalsIgnoreCase("vocal"))
-            event.getGuild().createVoiceChannel(args[0]) .setParent(category).queue();
+            guild.createVoiceChannel(name)
+                    .addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
+                    .addPermissionOverride(roleOwner, EnumSet.of(Permission.VIEW_CHANNEL), null)
+                    .setParent(guild.getCategoriesByName("Private", true).get(0))
+                    .complete();
         else
-            event.getGuild().createTextChannel(args[0]).setParent(category).queue();
+            guild.createTextChannel(name)
+                .addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
+                .addPermissionOverride(roleOwner, EnumSet.of(Permission.VIEW_CHANNEL), null)
+                .addPermissionOverride(roleMember, EnumSet.of(Permission.VIEW_CHANNEL), null)
+                .setParent(guild.getCategoriesByName("Private", true).get(0))
+                .complete();
 
-        GuildChannel newChan = null;
-        for (GuildChannel chan: event.getGuild().getChannels())
-        {
-            if(chan.getName().equals(args[0]))
-            {
-                newChan = chan;
-                break;
-            }
-        }
-        newRoles(args[0]);
-        newChan.getManager().putPermissionOverride(Permission.VIEW_CHANNEL)
-        event.getGuild().addRoleToMember(commandSender, event.getGuild().getRolesByName(args[0]+"Owner", true).get(0)).complete();
-    }
-
-    private Category getCategory()
-    {
-        Category category = null;
-        for (Category categorySearch : event.getGuild().getCategories())
-        {
-            if(categorySearch.getName().equalsIgnoreCase("Private")){
-                category = categorySearch;
-            }
-        }
-        if(category == null)
-        {
-            event.getGuild().createCategory("Private").complete();
-            category = getCategory();
-        }
-        return category;
+        guild.addRoleToMember(commandSender, guild.getRolesByName(name+"Owner", true).get(0)).complete();
     }
 
     private void newRoles(String name)
     {
         Random random = new Random();
         Color color = new Color(random.nextInt(255),random.nextInt(255), random.nextInt(255));
-       event.getGuild().createRole().setName(name+"Member").setColor(color).complete();
-       event.getGuild().createRole().setName(name+"Owner").setColor(color).complete();
+       guild.createRole().setName(name+"Member").setColor(color).complete();
+       guild.createRole().setName(name+"Owner").setColor(color).complete();
     }
 }
